@@ -33,7 +33,7 @@ _SECONDS = r"regexp_extract(clock, 'seconds[^a-z0-9]*([0-9]+)', 1)"
 
 PLAYS_SQL = f"""
 WITH raw AS (
-    SELECT *, filename
+    SELECT *
     FROM read_csv('{PLAYS_GLOB}', union_by_name = true, filename = true,
                   sample_size = -1, ignore_errors = false)
 ),
