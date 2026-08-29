@@ -5,6 +5,7 @@ from __future__ import annotations
 import duckdb
 
 from .paths import DRIVES_PARQUET, GAMES_PARQUET, PLAYS_PARQUET, TEAMS_PARQUET
+from .roster import ROSTER_PARQUET
 
 
 def connect() -> duckdb.DuckDBPyConnection:
@@ -20,7 +21,28 @@ def connect() -> duckdb.DuckDBPyConnection:
         CREATE VIEW teams  AS SELECT * FROM read_parquet('{TEAMS_PARQUET}');
         """
     )
+    if ROSTER_PARQUET.exists():
+        con.sql(f"""
+            CREATE VIEW roster AS
+            SELECT *, {name_key('player')} AS name_key
+            FROM read_parquet('{ROSTER_PARQUET}')
+        """)
     return con
+
+
+def name_key(col: str) -> str:
+    """SQL for a join key between playText names and roster names.
+
+    playText and the roster disagree on suffixes and punctuation -- "John
+    Metchie III" vs "John Metchie", "Jo'quavious" vs "Joquavious". Lowercasing
+    and stripping both lifts the FBS reception match rate from 77% to 98%.
+    """
+    return (f"lower(regexp_replace(regexp_replace({col}, "
+            r"'\s+(jr|sr|ii|iii|iv|v)\.?$', '', 'i'), '[^A-Za-z]', '', 'g'))")
+
+
+# Receiver name as it appears in playText (terse format, 2015-2024).
+RECEIVER_EXPR = "trim(regexp_extract(playText, 'pass complete to (.+?) for ', 1))"
 
 
 # Scrimmage plays only, usable clock, no COVID spring games. This is the
