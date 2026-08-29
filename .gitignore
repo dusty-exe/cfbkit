@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Data never belongs in this repo. The CFBD Starter Pack is personal-use /
+# do-not-redistribute, and derived Parquet is regenerable in ~11s.
+*.csv
+*.parquet
+*.pdf
+data/
+cfb-data/
+
+# Notebook noise
+.ipynb_checkpoints/
